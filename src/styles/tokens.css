@@ -4,20 +4,28 @@
   --pink: #ec407a;
   --peach: #f06292;
   --text: #ffffff;
-  --text-dim: rgba(255,255,255,0.66);
-  --text-faint: rgba(255,255,255,0.42);
-  --accent: #ffffff;
+  --text-dim: rgba(255,255,255,0.72);
+  --text-faint: rgba(255,255,255,0.45);
+  --accent: #ffee55;
 
-  --glass:        linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
-  --glass-strong: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.12));
-  --glass-border: rgba(255,255,255,0.26);
-  --glass-border-dim: rgba(255,255,255,0.16);
-  --glass-inner:  rgba(255,255,255,0.12);
-  --glass-shadow: 0 8px 32px rgba(150,30,100,0.26),
-                  inset 0 1px 0 rgba(255,255,255,0.32);
+  /* Retro solid panel system — no glassmorphism */
+  --panel-bg:         rgba(0,0,0,0.28);
+  --panel-bg-dim:     rgba(0,0,0,0.18);
+  --panel-border:     rgba(255,255,255,0.60);
+  --panel-border-dim: rgba(255,255,255,0.35);
+  --panel-shadow:     3px 3px 0 rgba(0,0,0,0.55);
+  --panel-shadow-sm:  2px 2px 0 rgba(0,0,0,0.45);
 
-  --r: 22px;
-  --r-sm: 14px;
+  /* Aliases so existing refs still compile */
+  --glass:            var(--panel-bg);
+  --glass-strong:     var(--panel-bg-dim);
+  --glass-border:     var(--panel-border);
+  --glass-border-dim: var(--panel-border-dim);
+  --glass-inner:      rgba(255,255,255,0.06);
+  --glass-shadow:     var(--panel-shadow);
+
+  --r: 0px;
+  --r-sm: 0px;
   --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
   --ease-apple:  cubic-bezier(0.32, 0.72, 0,    1);
 

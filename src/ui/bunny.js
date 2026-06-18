@@ -129,13 +129,15 @@ const BFLY2 = [
   [_,   BW1, BW2, _,   _,   BW2, BW1],
 ];
 
-// Barbell (16×5) — thick plates with shadow + highlight, chrome bar
+// Two dumbbells side by side (14×5) — held overhead, gap lets bunny head show through
+// Each dumbbell: dark-edge plate | plate | highlight-row | plate | dark-edge plate (5 wide)
+// Gap: 4 cols (transparent) between them
 const BBELL = [
-  [WPD, WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL, WPD],
-  [WPD, WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL, WPD],
-  [WPD, WPH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WPH, WPD],  // highlight
-  [WPD, WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL, WPD],
-  [WPD, WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL, WPD],
+  [WPD,WPL,WBH,WPL,WPD, _,_,_,_, WPD,WPL,WBH,WPL,WPD],
+  [WPD,WPL,WBR,WPL,WPD, _,_,_,_, WPD,WPL,WBR,WPL,WPD],
+  [WPD,WBH,WBH,WBH,WPD, _,_,_,_, WPD,WBH,WBH,WBH,WPD],
+  [WPD,WPL,WBR,WPL,WPD, _,_,_,_, WPD,WPL,WBR,WPL,WPD],
+  [WPD,WPL,WBH,WPL,WPD, _,_,_,_, WPD,WPL,WBH,WPL,WPD],
 ];
 
 // Gym bunny — squinting effort face during press (10×12)
@@ -218,8 +220,8 @@ function ensureStyles() {
       box-shadow: inset 0 0 0 2px #ffaace;
       border-radius: 0;
       padding: 6px 12px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 10px;
+      font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+      font-size: 7px;
       font-weight: bold;
       letter-spacing: 1px;
       white-space: nowrap;
@@ -661,7 +663,7 @@ function spawnButterfly() {
 // ─── Gym bunny (occasional barbell overhead press) ───
 function spawnGymBunny(scene) {
   const u     = urls();
-  const bellW = BBELL[0].length * PX;   // 48px (16 cols × 3)
+  const bellW = BBELL[0].length * PX;   // 42px (14 cols × 3)
   const bellH = BBELL.length    * PX;   // 15px (5 rows × 3)
 
   const x   = 70 + Math.floor(Math.random() * (window.innerWidth - 140));

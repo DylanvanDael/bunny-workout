@@ -21,6 +21,7 @@ import { fieldStep } from './logic/format.js';
 import { bestScore, entryScore } from './logic/scoring.js';
 import { formatPlates } from './logic/plates.js';
 import { initBunnies } from './ui/bunny.js';
+import { showSplash } from './ui/splash.js';
 
 // ===== APP STATE =====
 let activeTab = 0;
@@ -487,6 +488,7 @@ async function init() {
   seedIfNeeded();
   setupExportImport();
   initBunnies();
+  await showSplash();
   render();
 
   window.addEventListener('focus', async () => {
