@@ -1,6 +1,11 @@
-/* 8-bit bunny scene — all layout injected via bunny.js */
-/* Ensure pixel-art elements stay crisp */
+/* 8-bit bunny scene — layout injected via bunny.js */
 [style*="image-rendering"] {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+@keyframes starFloat {
+  0%   { opacity: 1; transform: translateY(0px)   scale(1.2); }
+  60%  { opacity: 1; transform: translateY(-22px)  scale(1.4); }
+  100% { opacity: 0; transform: translateY(-40px)  scale(0.6); }
 }
