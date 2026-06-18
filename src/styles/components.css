@@ -1,0 +1,729 @@
+/* ─────────────────────────────────────────
+   APP HEADER
+───────────────────────────────────────── */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px 10px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  flex-shrink: 0;
+  gap: 10px;
+}
+
+.app-title {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.streak-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.22);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 4px 10px;
+  min-width: 50px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.streak-count {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.streak-label {
+  font-size: 9px;
+  opacity: 0.72;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.20);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+}
+
+
+/* ─────────────────────────────────────────
+   TAB BAR
+───────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: relative;
+  padding: 8px 10px;
+  gap: 2px;
+  background: rgba(255,255,255,0.14);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border-dim);
+  flex-shrink: 0;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+/* Sliding pill — sits behind the text buttons */
+.tab-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  height: calc(100% - 16px);
+  background: rgba(255,255,255,0.36);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.6);
+  transition: transform 300ms var(--ease-apple), width 300ms var(--ease-apple);
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform, width;
+}
+
+.tab-btn {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 14px;
+  min-width: 56px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  flex-shrink: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-num {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.3px;
+}
+
+.tab-title {
+  font-size: 10px;
+  opacity: 0.68;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 78px;
+}
+
+.tab-btn.active .tab-title { opacity: 1; }
+
+.tab-btn-add {
+  font-size: 22px;
+  font-weight: 300;
+  padding: 6px 8px;
+  min-width: 36px;
+  opacity: 0.65;
+}
+
+
+/* ─────────────────────────────────────────
+   MAIN SCROLL AREA
+───────────────────────────────────────── */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px 10px calc(var(--safe-bottom) + 130px);
+  scrollbar-width: none;
+}
+
+.main-content::-webkit-scrollbar { display: none; }
+
+
+/* ─────────────────────────────────────────
+   DAY HEADER
+───────────────────────────────────────── */
+.day-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
+.day-header-left { flex: 1; min-width: 0; }
+
+.day-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  line-height: 1.05;
+}
+
+.day-subtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+.day-done {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.day-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+
+/* ─────────────────────────────────────────
+   EXERCISE CARD
+───────────────────────────────────────── */
+.exercise-card {
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r);
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.exercise-card.logged-today {
+  border-left: 3px solid rgba(255,255,255,0.75);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 16px;
+  cursor: pointer;
+  /* Prevent iOS text selection, callout, and native element drag on long press */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-header:active { opacity: 0.72; }
+
+.ex-num {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.40;
+  min-width: 18px;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.ex-info { flex: 1; min-width: 0; }
+
+.ex-name {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  letter-spacing: -0.2px;
+}
+
+.ex-done-mark {
+  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.ex-muscle {
+  font-size: 12px;
+  color: var(--text-dim);
+  display: block;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ex-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sparkline-wrap {
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+.ex-last { text-align: right; min-width: 64px; }
+
+.ex-last-val {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+.ex-last-date {
+  font-size: 10px;
+  color: var(--text-faint);
+  display: block;
+  margin-top: 1px;
+}
+
+.ex-1rm {
+  font-size: 10px;
+  color: var(--text-faint);
+  display: block;
+  margin-top: 1px;
+  opacity: 0.75;
+}
+
+.btn-quick-log {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.30);
+  color: var(--text);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+  line-height: 1;
+}
+
+.btn-quick-log:active {
+  background: rgba(255,255,255,0.30);
+  transform: scale(0.88);
+}
+
+.plate-hint {
+  font-size: 10px;
+  color: var(--text-faint);
+  text-align: center;
+  min-height: 14px;
+  margin-top: -8px;
+  margin-bottom: 6px;
+  opacity: 0.8;
+  letter-spacing: 0.01em;
+}
+
+
+/* ─────────────────────────────────────────
+   CARD BODY  (animated open / close)
+───────────────────────────────────────── */
+.card-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  /* don't animate padding — just max-height + opacity */
+  transition:
+    max-height 380ms var(--ease-apple),
+    opacity    220ms ease;
+}
+
+.card-body.open {
+  max-height: 860px;
+  opacity: 1;
+}
+
+/* inner wrapper carries the real padding so overflow:hidden doesn't cut it */
+.card-body-inner {
+  padding: 0 10px 18px;
+}
+
+/* Divider between header and body */
+.card-body-inner::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: var(--glass-border-dim);
+  margin: 0 -10px 14px;
+}
+
+
+/* ─────────────────────────────────────────
+   SUGGESTION CHIP
+───────────────────────────────────────── */
+.suggestion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 20px;
+  padding: 7px 13px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: pointer;
+  margin-bottom: 14px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: background 120ms ease;
+}
+
+.suggestion-chip:active { background: rgba(255,255,255,0.26); }
+
+
+/* ─────────────────────────────────────────
+   FIELD INPUTS + STEPPERS
+───────────────────────────────────────── */
+.field-inputs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.field-label {
+  font-size: 10px;
+  color: var(--text-faint);
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+
+.field-stepper {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Small circles — clearly distinct from the number input */
+.stepper-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  border: 1px solid rgba(255,255,255,0.38);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+  padding-bottom: 1px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+}
+
+.stepper-btn:active {
+  background: rgba(255,255,255,0.36);
+  transform: scale(0.86);
+  opacity: 1;
+}
+
+/* Taller rectangle — clearly an input, not a button.
+   min-width: 50px ensures 5-char values like "102.5" always fit. */
+.field-input {
+  flex: 1;
+  min-width: 50px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.36);
+  border-radius: 11px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px 2px;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28),
+              inset 0 2px 5px rgba(0,0,0,0.08);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.60);
+  background: rgba(255,255,255,0.26);
+}
+
+/* hide browser number spinners */
+.field-input::-webkit-inner-spin-button,
+.field-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.field-input[type=number] { -moz-appearance: textfield; }
+
+
+/* ─────────────────────────────────────────
+   NOTES TEXTAREA
+───────────────────────────────────────── */
+.notes-input {
+  width: 100%;
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 13px;
+  color: var(--text);
+  font-size: 13.5px;
+  padding: 10px 13px;
+  margin-bottom: 13px;
+  min-height: 42px;
+  max-height: 80px;
+  line-height: 1.45;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.07);
+}
+
+.notes-input::placeholder { color: var(--text-faint); }
+
+.notes-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.18);
+}
+
+
+/* ─────────────────────────────────────────
+   BUTTON ROW
+───────────────────────────────────────── */
+.card-btn-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-primary {
+  flex: 1;
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+  color: rgba(80,10,40,0.92);
+  font-weight: 800;
+  font-size: 15px;
+  border-radius: 14px;
+  padding: 14px 20px;
+  border: none;
+  letter-spacing: -0.2px;
+  box-shadow: 0 3px 12px rgba(200,50,120,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  opacity: 0.90;
+  box-shadow: 0 1px 6px rgba(200,50,120,0.25);
+}
+
+.btn-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.32);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.40);
+}
+
+.btn-icon:active {
+  background: rgba(255,255,255,0.28);
+  transform: scale(0.94);
+}
+
+
+/* ─────────────────────────────────────────
+   HISTORY PANEL
+───────────────────────────────────────── */
+.history-panel {
+  margin-top: 14px;
+  border-top: 1px solid var(--glass-border-dim);
+  padding-top: 12px;
+}
+
+.history-panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.history-panel-inner::-webkit-scrollbar { display: none; }
+
+.history-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 11px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  gap: 8px;
+}
+
+.history-entry-info { flex: 1; min-width: 0; }
+
+.history-entry-val {
+  font-size: 13.5px;
+  font-weight: 600;
+  display: block;
+  letter-spacing: -0.2px;
+}
+
+.history-entry-date {
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-top: 1px;
+  display: block;
+}
+
+.history-pr-tag {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(244,114,182,0.30);
+  color: #fce7f3;
+  border: 1px solid rgba(244,114,182,0.50);
+  border-radius: 6px;
+  padding: 2px 7px;
+  margin-left: 6px;
+  letter-spacing: 0.03em;
+}
+
+.history-delete-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(255,80,80,0.13);
+  border: 1px solid rgba(255,80,80,0.22);
+  color: rgba(255,140,140,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-delete-btn:active {
+  background: rgba(255,80,80,0.25);
+  transform: scale(0.92);
+}
+
+
+/* ─────────────────────────────────────────
+   BOTTOM ACTIONS (add exercise / delete day)
+───────────────────────────────────────── */
+.btn-add-exercise {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px;
+  background: rgba(255,255,255,0.10);
+  border: 1.5px dashed rgba(255,255,255,0.28);
+  border-radius: var(--r);
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 6px;
+  transition: background 150ms ease;
+}
+
+.btn-add-exercise:active { background: rgba(255,255,255,0.18); }
+
+.btn-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(180,30,30,0.28);
+  border: 1px solid rgba(255,80,80,0.45);
+  border-radius: 14px;
+  color: rgba(255,210,210,1);
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.btn-danger:active { background: rgba(180,30,30,0.42); }
+
+
+/* ─────────────────────────────────────────
+   DRAG-TO-REORDER
+───────────────────────────────────────── */
+.exercise-card.dragging {
+  opacity: 0.25;
+  transform: scale(0.97);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.drag-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  transform: scale(1.03) rotate(0.4deg);
+  box-shadow: 0 22px 55px rgba(0,0,0,0.28), var(--glass-shadow);
+  background: var(--glass-strong);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: var(--r);
+}
+
+.drag-placeholder {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px dashed rgba(255,255,255,0.35);
+  border-radius: var(--r);
+  margin-bottom: 12px;
+  background: rgba(255,255,255,0.07);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  /* height is set by JS to match the dragged card */
+}

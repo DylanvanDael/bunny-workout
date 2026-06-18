@@ -1,0 +1,81 @@
+/* ─────────────────────────────────────────
+   8-BIT HOPPING BUNNIES
+   Sprite sheet: two 9×8 frames side by side (18×8 viewBox)
+   Display: 36×32px per frame (4px per pixel)
+───────────────────────────────────────── */
+
+.bunny-track {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 58px;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.bunny-runner {
+  position: absolute;
+  bottom: 8px;
+}
+
+.bunny-runner.go-right {
+  animation: bunny-move-right var(--dur, 9000ms) linear forwards;
+}
+
+.bunny-runner.go-left {
+  animation: bunny-move-left var(--dur, 9000ms) linear forwards;
+}
+
+/* pixel-bunny carries the sprite + hop + frame animations */
+.pixel-bunny {
+  display: block;
+  width: 36px;
+  height: 32px;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+  background-size: 72px 32px;
+  background-position: 0 0;
+  /* sprite sheet SVG: frame1 (sitting) left, frame2 (hopping) right */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 8' shape-rendering='crispEdges'%3E%3C!-- FRAME 1: sitting bunny --%3E%3Crect x='1' y='0' width='1' height='2' fill='white'/%3E%3Crect x='6' y='0' width='1' height='2' fill='white'/%3E%3Crect x='0' y='2' width='8' height='3' fill='white'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23ff6b9d'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23ff6b9d'/%3E%3Crect x='3' y='4' width='2' height='1' fill='%23ffb6c1'/%3E%3Crect x='0' y='5' width='8' height='2' fill='white'/%3E%3Crect x='8' y='5' width='1' height='1' fill='white'/%3E%3Crect x='1' y='7' width='2' height='1' fill='white'/%3E%3Crect x='5' y='7' width='2' height='1' fill='white'/%3E%3C!-- FRAME 2: hopping bunny --%3E%3Crect x='9' y='0' width='2' height='1' fill='white'/%3E%3Crect x='15' y='0' width='2' height='1' fill='white'/%3E%3Crect x='10' y='1' width='1' height='1' fill='white'/%3E%3Crect x='15' y='1' width='1' height='1' fill='white'/%3E%3Crect x='9' y='2' width='8' height='3' fill='white'/%3E%3Crect x='10' y='3' width='1' height='1' fill='%23ff6b9d'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%23ff6b9d'/%3E%3Crect x='12' y='4' width='2' height='1' fill='%23ffb6c1'/%3E%3Crect x='9' y='5' width='8' height='2' fill='white'/%3E%3Crect x='17' y='5' width='1' height='1' fill='white'/%3E%3Crect x='9' y='7' width='2' height='1' fill='white'/%3E%3Crect x='15' y='7' width='2' height='1' fill='white'/%3E%3C/svg%3E");
+}
+
+/* right-going: face right (default sprite direction), normal hop */
+.go-right .pixel-bunny {
+  animation:
+    bunny-frames   var(--hop, 420ms) steps(2, end) infinite,
+    bunny-hop-norm var(--hop, 420ms) ease-in-out   infinite;
+}
+
+/* left-going: flip horizontally + hop */
+.go-left .pixel-bunny {
+  animation:
+    bunny-frames    var(--hop, 420ms) steps(2, end) infinite,
+    bunny-hop-flip  var(--hop, 420ms) ease-in-out   infinite;
+}
+
+@keyframes bunny-frames {
+  from { background-position: 0 0; }
+  to   { background-position: -36px 0; }
+}
+
+@keyframes bunny-hop-norm {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-14px); }
+}
+
+@keyframes bunny-hop-flip {
+  0%, 100% { transform: scaleX(-1) translateY(0px); }
+  50%      { transform: scaleX(-1) translateY(-14px); }
+}
+
+@keyframes bunny-move-right {
+  from { left: -44px; }
+  to   { left: calc(100vw + 44px); }
+}
+
+@keyframes bunny-move-left {
+  from { left: calc(100vw + 44px); }
+  to   { left: -44px; }
+}

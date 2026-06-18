@@ -1,0 +1,82 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  /* bunny gradient fixed behind everything */
+  background: linear-gradient(165deg, #ff6eb4 0%, #e879f9 40%, #9b59b6 75%, #fce7f3 100%) fixed;
+  background-attachment: fixed;
+  color: var(--text);
+  text-transform: lowercase;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Ambient glow overlays */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 55% at 15% 8%,  rgba(255,200,230,0.40) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 82% 82%, rgba(200,80,220,0.28)  0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 55% 48%, rgba(240,100,200,0.18) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding-top: var(--safe-top);
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 { font-weight: 600; }
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  border: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  text-transform: lowercase;
+  transition: transform 80ms ease, opacity 80ms ease;
+}
+
+button:active {
+  opacity: 0.75;
+  transform: scale(0.96);
+}
+
+input, textarea {
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  text-transform: lowercase;
+}
+
+textarea { resize: none; }
+
+:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.55);
+  outline-offset: 2px;
+}
+
+a { color: inherit; text-decoration: none; }
+
+svg { flex-shrink: 0; }

@@ -1,0 +1,332 @@
+/* ─────────────────────────────────────────
+   SHEET OVERLAY
+───────────────────────────────────────── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms var(--ease-apple);
+}
+
+.sheet-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ─────────────────────────────────────────
+   BOTTOM SHEET
+───────────────────────────────────────── */
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 101;
+  background: linear-gradient(180deg,
+    rgba(244,114,182,0.97) 0%,
+    rgba(168,85,247,0.99)  100%);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border-top: 1px solid rgba(255,255,255,0.35);
+  border-radius: var(--r) var(--r) 0 0;
+  padding-bottom: calc(var(--safe-bottom) + 12px);
+  max-height: 92dvh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  transform: translateY(100%);
+  transition: transform 420ms var(--ease-spring);
+  box-shadow: 0 -10px 50px rgba(150,30,100,0.38),
+              inset 0 1px 0 rgba(255,255,255,0.45);
+}
+
+.bottom-sheet::-webkit-scrollbar { display: none; }
+.bottom-sheet.open { transform: translateY(0); }
+
+.sheet-handle {
+  width: 38px;
+  height: 4px;
+  background: rgba(255,255,255,0.40);
+  border-radius: 2px;
+  margin: 12px auto 6px;
+}
+
+.sheet-title {
+  font-size: 17px;
+  font-weight: 800;
+  padding: 10px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.22);
+  margin-bottom: 16px;
+  letter-spacing: -0.3px;
+}
+
+.sheet-content { padding: 0 20px; }
+
+.sheet-field { margin-bottom: 18px; }
+
+.sheet-label {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 7px;
+  display: block;
+  letter-spacing: 0.04em;
+}
+
+.sheet-input {
+  width: 100%;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 13px;
+  color: var(--text);
+  font-size: 15px;
+  padding: 12px 14px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sheet-input::placeholder { color: rgba(255,255,255,0.45); }
+
+.sheet-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.24);
+}
+
+/* ─────────────────────────────────────────
+   PILL SELECTORS
+───────────────────────────────────────── */
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  padding: 7px 15px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.pill.active {
+  background: rgba(255,255,255,0.32);
+  border-color: rgba(255,255,255,0.55);
+  color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.50);
+}
+
+/* ─────────────────────────────────────────
+   NUMBER INPUTS IN SHEET
+───────────────────────────────────────── */
+.sheet-num-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sheet-num-input {
+  flex: 1;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 13px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  padding: 10px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sheet-num-input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.24);
+}
+
+/* ─────────────────────────────────────────
+   SHEET ACTION BUTTONS
+───────────────────────────────────────── */
+.sheet-btn-row {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px 8px;
+  border-top: 1px solid rgba(255,255,255,0.20);
+  margin-top: 16px;
+}
+
+.sheet-btn-save {
+  flex: 1;
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+  color: rgba(80,10,40,0.92);
+  font-weight: 800;
+  font-size: 15px;
+  border-radius: 14px;
+  padding: 14px;
+  border: none;
+  box-shadow: 0 3px 12px rgba(200,50,120,0.30), inset 0 1px 0 rgba(255,255,255,0.30);
+}
+
+.sheet-btn-save:active {
+  transform: scale(0.97);
+  opacity: 0.90;
+}
+
+.sheet-btn-cancel {
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 14px;
+  color: var(--text-dim);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sheet-order-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.sheet-order-btn {
+  flex: 1;
+  padding: 11px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 13px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sheet-delete-btn {
+  width: 100%;
+  padding: 14px;
+  background: rgba(255,60,60,0.15);
+  border: 1px solid rgba(255,80,80,0.28);
+  border-radius: 14px;
+  color: rgba(255,160,160,0.95);
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.sheet-delete-btn:active { background: rgba(255,60,60,0.28); }
+
+.sheet-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  letter-spacing: 0.07em;
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+.sheet-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.18);
+  margin: 18px 0;
+}
+
+/* ─────────────────────────────────────────
+   CONFIRM MODAL
+───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.confirm-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 201;
+  transform: translate(-50%, -50%) scale(0.82);
+  width: min(340px, calc(100vw - 36px));
+  background: linear-gradient(150deg,
+    rgba(244,114,182,0.97) 0%,
+    rgba(168,85,247,0.98)  100%);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: var(--r);
+  box-shadow: 0 28px 70px rgba(0,0,0,0.40),
+              inset 0 1px 0 rgba(255,255,255,0.50);
+  padding: 24px 22px;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 320ms var(--ease-spring), opacity 180ms ease;
+}
+
+.confirm-modal.open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.modal-message {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+.modal-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  letter-spacing: -0.2px;
+}
+
+.modal-btn-danger {
+  background: rgba(255,60,60,0.22);
+  border: 1px solid rgba(255,80,80,0.32);
+  color: rgba(255,160,160,0.95);
+}
+
+.modal-btn-warn {
+  background: rgba(249,168,34,0.22);
+  border: 1px solid rgba(249,168,34,0.35);
+  color: rgba(255,220,110,0.95);
+}
+
+.modal-btn-cancel {
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: var(--text-dim);
+}
