@@ -157,7 +157,7 @@ export function showSplash() {
 
     // ── Blink prompt ──
     const prompt = document.createElement('div');
-    prompt.textContent = '[ tap to start ]';
+    prompt.textContent = '[ tap to proceed ]';
     prompt.style.cssText = `
       font-size: 6px; color: #55ffcc; letter-spacing: 2px;
       animation: splashBlink 1s step-end infinite;
@@ -203,7 +203,6 @@ export function showSplash() {
     };
 
     overlay.addEventListener('click', dismiss);
-    setTimeout(dismiss, 7000); // auto-close after 7s
   });
 }
 
