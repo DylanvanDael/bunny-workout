@@ -20,6 +20,14 @@ const MB = '#7d4e10';
 const ML = '#c4955a';
 const MD = '#111111';
 const MN = '#cc5555';
+// Butterfly
+const BW1 = '#ffaaee';
+const BW2 = '#dd44aa';
+const BFB = '#553377';
+// Barbell
+const WPL = '#334488';
+const WPH = '#5566bb';
+const WBR = '#ccccdd';
 
 // ─── Pixel art grids (10 × 12) ───
 
@@ -95,15 +103,44 @@ const BMOLE = [
   [_,MD,_,_,_,MD,_,_],
 ];
 
-// ─── Render pixel grid → data URL ───
-function toDataURL(grid) {
+// Butterfly sprite pixel size (smaller than bunnies)
+const BPX = 2;
+
+// Butterfly frame 1 — wings up (6×5)
+const BFLY1 = [
+  [BW1, _,   _,   _,   _,   BW1],
+  [BW1, BW2, _,   _,   BW2, BW1],
+  [_,   BW2, BFB, BFB, BW2, _  ],
+  [_,   _,   BFB, BFB, _,   _  ],
+  [_,   _,   BFB, _,   _,   _  ],
+];
+
+// Butterfly frame 2 — wings down (6×5)
+const BFLY2 = [
+  [_,   _,   BFB, _,   _,   _  ],
+  [_,   _,   BFB, BFB, _,   _  ],
+  [_,   BW2, BFB, BFB, BW2, _  ],
+  [BW1, BW2, _,   _,   BW2, BW1],
+  [BW1, _,   _,   _,   _,   BW1],
+];
+
+// Barbell (13×4) — weights + chrome bar
+const BBELL = [
+  [WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL],
+  [WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL],
+  [WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL],
+  [WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL],
+];
+
+// ─── Render pixel grid → data URL (px defaults to global PX) ───
+function toDataURL(grid, px = PX) {
   const cols = grid[0].length, rows = grid.length;
   const c = document.createElement('canvas');
-  c.width = cols * PX; c.height = rows * PX;
+  c.width = cols * px; c.height = rows * px;
   const ctx = c.getContext('2d');
   grid.forEach((row, y) =>
     row.forEach((color, x) => {
-      if (color) { ctx.fillStyle = color; ctx.fillRect(x*PX, y*PX, PX, PX); }
+      if (color) { ctx.fillStyle = color; ctx.fillRect(x*px, y*px, px, px); }
     })
   );
   return c.toDataURL();
@@ -119,6 +156,21 @@ function urls() {
     mole: toDataURL(BMOLE),
   };
   return URLS;
+}
+
+let BF_URLS = null;
+function bfURLs() {
+  if (!BF_URLS) BF_URLS = {
+    f1: toDataURL(BFLY1, BPX),
+    f2: toDataURL(BFLY2, BPX),
+  };
+  return BF_URLS;
+}
+
+let BELL_URL = null;
+function bellURL() {
+  if (!BELL_URL) BELL_URL = toDataURL(BBELL);
+  return BELL_URL;
 }
 
 // ─── Inject shared CSS once (NES-style dialog box, no border-radius) ───
@@ -514,10 +566,152 @@ function spawnBunny(scene) {
   requestAnimationFrame(tick);
 }
 
+// ─── Butterfly ───
+function spawnButterfly() {
+  const { f1, f2 } = bfURLs();
+  const BFW = BFLY1[0].length * BPX;   // 12px
+  const BFH = BFLY1.length    * BPX;   // 10px
+
+  const dir       = Math.random() > 0.5 ? 1 : -1;
+  let   x         = dir === 1 ? -BFW - 4 : window.innerWidth + BFW + 4;
+  const baseBot   = SCENE_H + 24 + Math.random() * 110;
+  const speed     = 28 + Math.random() * 22;
+  const amp       = 14 + Math.random() * 18;
+  const freq      = 0.9 + Math.random() * 0.7;
+  const phase     = Math.random() * Math.PI * 2;
+
+  const el = document.createElement('div');
+  el.style.cssText = [
+    'position:fixed',
+    `left:${x}px`,
+    `bottom:${baseBot}px`,
+    `width:${BFW}px`,
+    `height:${BFH}px`,
+    `background:url(${f1}) 0 0 / 100% 100%`,
+    'image-rendering:pixelated',
+    'image-rendering:crisp-edges',
+    `transform:scaleX(${dir})`,
+    'transform-origin:center',
+    'z-index:52',
+    'pointer-events:none',
+  ].join(';');
+  document.body.appendChild(el);
+
+  const frames = [f1, f2];
+  let   frame  = 0;
+  let   lastT  = null;
+
+  const wingTimer = setInterval(() => {
+    frame ^= 1;
+    el.style.background = `url(${frames[frame]}) 0 0 / 100% 100%`;
+  }, 130 + Math.random() * 70);
+
+  function tick(ts) {
+    if (!lastT) lastT = ts;
+    const dt = Math.min((ts - lastT) / 1000, 0.05);
+    lastT = ts;
+
+    x += dir * speed * dt;
+    const yOff = Math.sin((ts / 1000) * freq * Math.PI * 2 + phase) * amp;
+    el.style.left   = x + 'px';
+    el.style.bottom = (baseBot + yOff) + 'px';
+
+    if (dir > 0 ? x > window.innerWidth + BFW + 10 : x < -BFW - 10) {
+      clearInterval(wingTimer);
+      el.remove();
+      setTimeout(spawnButterfly, 2500 + Math.random() * 5000);
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// ─── Gym bunny (occasional barbell overhead press) ───
+function spawnGymBunny(scene) {
+  const u     = urls();
+  const bellW = BBELL[0].length * PX;   // 39px
+  const bellH = BBELL.length    * PX;   // 12px
+
+  const x   = 60 + Math.floor(Math.random() * (window.innerWidth - 120));
+  const dir = Math.random() > 0.5 ? 1 : -1;
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = [
+    'position:absolute',
+    `bottom:${GROUND_H}px`,
+    `left:${x}px`,
+    'z-index:6',
+  ].join(';');
+
+  // Barbell sits centred above the bunny
+  const bellLeft = Math.round((BW - bellW) / 2);
+  const shoulderY = BH - 2;
+  const overheadY = BH + 20;
+
+  const bell = document.createElement('div');
+  bell.style.cssText = [
+    'position:absolute',
+    `width:${bellW}px`,
+    `height:${bellH}px`,
+    `left:${bellLeft}px`,
+    `bottom:${shoulderY}px`,
+    `background:url(${bellURL()}) 0 0 / 100% 100%`,
+    'image-rendering:pixelated',
+    'image-rendering:crisp-edges',
+    'transition:bottom 0.52s cubic-bezier(0.4,0,0.2,1)',
+  ].join(';');
+
+  const bunny = document.createElement('div');
+  bunny.style.cssText = [
+    `width:${BW}px`,
+    `height:${BH}px`,
+    `background:url(${u.sit}) 0 0 / 100% 100%`,
+    'image-rendering:pixelated',
+    `transform:scaleX(${dir})`,
+    'transform-origin:center bottom',
+    'transition:transform 260ms cubic-bezier(0.34,1.45,0.64,1)',
+  ].join(';');
+
+  wrap.appendChild(bell);
+  wrap.appendChild(bunny);
+  scene.appendChild(wrap);
+
+  const totalReps = 3 + Math.floor(Math.random() * 4);
+  let   repsDone  = 0;
+  let   isUp      = false;
+
+  function doRep() {
+    isUp = !isUp;
+    bell.style.bottom = (isUp ? overheadY : shoulderY) + 'px';
+
+    // Tiny body-lean when pressing up
+    bunny.style.transform = isUp
+      ? `scaleX(${dir}) scaleY(0.94)`
+      : `scaleX(${dir}) scaleY(1)`;
+
+    if (!isUp) {
+      repsDone++;
+      if (repsDone >= totalReps) {
+        setTimeout(() => {
+          wrap.remove();
+          setTimeout(() => spawnGymBunny(scene), 18000 + Math.random() * 18000);
+        }, 1400);
+        return;
+      }
+    }
+    setTimeout(doRep, 580 + Math.random() * 180);
+  }
+
+  setTimeout(doRep, 900);
+}
+
 // ─── Init ───
 export function initBunnies() {
   ensureStyles();
   urls();
+  bfURLs();
+  bellURL();
 
   const scene = document.createElement('div');
   // No overflow:hidden — the mole has its own clip wrapper
@@ -531,7 +725,16 @@ export function initBunnies() {
   scene.appendChild(buildGrassCanvas(holeX));
   buildMole(scene, holeX);
 
+  // Walking bunnies
   spawnBunny(scene);
   setTimeout(() => spawnBunny(scene), 3000 + Math.random() * 2000);
   setTimeout(() => spawnBunny(scene), 7500 + Math.random() * 3000);
+
+  // Butterflies
+  spawnButterfly();
+  setTimeout(spawnButterfly, 2800 + Math.random() * 2000);
+  setTimeout(spawnButterfly, 6000 + Math.random() * 3000);
+
+  // Gym bunny (first appearance after a few seconds)
+  setTimeout(() => spawnGymBunny(scene), 6000 + Math.random() * 6000);
 }
