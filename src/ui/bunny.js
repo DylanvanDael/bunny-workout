@@ -121,7 +121,7 @@ function urls() {
   return URLS;
 }
 
-// ─── Inject shared CSS once (bubble tail uses ::before/::after) ───
+// ─── Inject shared CSS once (NES-style dialog box, no border-radius) ───
 function ensureStyles() {
   if (document.getElementById('__bunny_ui_styles')) return;
   const s = document.createElement('style');
@@ -130,12 +130,15 @@ function ensureStyles() {
     .bunny-bubble {
       position: fixed;
       background: #fff0f6;
-      color: #c2185b;
-      border: 2px solid #f48fb1;
-      border-radius: 10px;
-      padding: 5px 10px;
-      font-size: 11px;
-      font-weight: 700;
+      color: #8b0033;
+      border: 3px solid #c2185b;
+      box-shadow: inset 0 0 0 2px #ffaace;
+      border-radius: 0;
+      padding: 6px 12px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
       white-space: nowrap;
       pointer-events: none;
       z-index: 9999;
@@ -143,27 +146,27 @@ function ensureStyles() {
       transform-origin: bottom left;
       transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease;
     }
-    .bunny-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -9px;
-      left: 14px;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-top: 9px solid #f48fb1;
-    }
-    .bunny-bubble::before {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 16px;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 6px solid #fff0f6;
-      z-index: 1;
-    }
   `;
   document.head.appendChild(s);
+}
+
+// Canvas-rendered pixelated tail (staircase pointing down-left)
+let TAIL_URL = null;
+function tailURL() {
+  if (TAIL_URL) return TAIL_URL;
+  const P = 3; // pixels per grid cell, same as sprite PX
+  const c = document.createElement('canvas');
+  c.width = 9; c.height = 9;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#c2185b';
+  ctx.fillRect(0,     0,   9, P); // row 0: 3 cells wide
+  ctx.fillRect(0,     P,   6, P); // row 1: 2 cells wide
+  ctx.fillRect(0,   P*2,   3, P); // row 2: 1 cell wide
+  // inner highlight row
+  ctx.fillStyle = '#ffaace';
+  ctx.fillRect(P,     P,   3, P); // highlight middle of row 1
+  TAIL_URL = c.toDataURL();
+  return TAIL_URL;
 }
 
 // ─── Scene constants ───
@@ -286,28 +289,40 @@ function spawnStar(x) {
 }
 
 function spawnBubble(x, text) {
-  const clampedX = Math.min(Math.max(x, 6), window.innerWidth - 130);
+  const clampedX = Math.min(Math.max(x, 6), window.innerWidth - 150);
 
   const bubble = document.createElement('div');
   bubble.className = 'bunny-bubble';
   bubble.textContent = text;
-  bubble.style.left   = clampedX + 'px';
-  bubble.style.bottom = (GROUND_H + BH + 18) + 'px';
-  bubble.style.transform = 'scale(0) rotate(-6deg)';
+  bubble.style.left      = clampedX + 'px';
+  bubble.style.bottom    = (GROUND_H + BH + 22) + 'px';
+  bubble.style.transform = 'scale(0) rotate(-8deg)';
   bubble.style.opacity   = '1';
+
+  // Pixel-art tail as a canvas image — no anti-aliased triangles
+  const tail = document.createElement('div');
+  tail.style.cssText = [
+    'position:absolute',
+    'bottom:-9px', 'left:9px',
+    'width:9px', 'height:9px',
+    `background:url(${tailURL()}) 0 0 / 100% 100%`,
+    'image-rendering:pixelated',
+    'image-rendering:crisp-edges',
+  ].join(';');
+  bubble.appendChild(tail);
 
   document.body.appendChild(bubble);
 
-  // Double rAF guarantees the browser paints scale(0) before we transition to scale(1)
+  // Double rAF: browser must commit scale(0) before transitioning to scale(1)
   requestAnimationFrame(() => requestAnimationFrame(() => {
     bubble.style.transform = 'scale(1) rotate(0deg)';
   }));
 
   setTimeout(() => {
     bubble.style.opacity   = '0';
-    bubble.style.transform = 'scale(0.88) rotate(3deg)';
-  }, 2000);
-  setTimeout(() => bubble.remove(), 2300);
+    bubble.style.transform = 'scale(0.85) rotate(4deg)';
+  }, 2100);
+  setTimeout(() => bubble.remove(), 2400);
 }
 
 // ─── Bunny ───
@@ -380,35 +395,43 @@ function spawnBunny(scene) {
     }
   }, 3200 + Math.random() * 2000);
 
-  // Staged high-five animation for this bunny
+  // Staged high-five: squish → spring → hold pose → walk away
   b.doHighFive = () => {
     if (b.state === 'highfive') return;
     b.state = 'highfive';
     b.el.style.marginBottom = '0';
 
-    // t=0: scale-up bounce
-    b.el.style.transform = `scaleX(${b.dir > 0 ? 1.15 : -1.15}) scaleY(1.15)`;
-    b.el.style.filter    = 'brightness(1.25)';
+    const D = b.dir; // capture direction at start
 
-    // t=180ms: raise paw
+    // t=0: anticipation squish (feet stay planted, body compresses)
+    b.el.style.transform = `scaleX(${D}) scaleY(0.82)`;
+    b.el.style.filter    = 'brightness(1.05)';
+
+    // t=100ms: spring UP and switch to raised-paw frame at peak
     setTimeout(() => {
+      b.el.style.transform  = `scaleX(${D}) scaleY(1.25)`;
+      b.el.style.filter     = 'brightness(1.4)';
       b.el.style.background = `url(${u.hifi}) 0 0 / 100% 100%`;
-      b.el.style.transform  = `scaleX(${b.dir > 0 ? 1 : -1}) scale(1.18)`;
-    }, 180);
+    }, 100);
 
-    // t=1700ms: reverse, push apart so they don't immediately re-collide, set cooldown
+    // t=340ms: settle into relaxed high-five pose (spring curve handles overshoot)
+    setTimeout(() => {
+      b.el.style.transform = `scaleX(${D}) scaleY(1.1)`;
+      b.el.style.filter    = 'brightness(1.15)';
+    }, 340);
+
+    // t=1750ms: reverse direction, push clear, reset
     setTimeout(() => {
       if (b.state !== 'highfive') return;
       b.dir = -b.dir;
-      // Move away from the meeting point before resuming so collision zone is clear
       b.pos += b.dir * (BW + MIN_GAP + 4);
-      b.wrap.style.left  = b.pos + 'px';
-      b.hifiCooldown     = HIFI_COOLDOWN;
-      b.el.style.transform  = `scaleX(${b.dir > 0 ? 1 : -1}) scale(1)`;
+      b.wrap.style.left     = b.pos + 'px';
+      b.hifiCooldown        = HIFI_COOLDOWN;
+      b.el.style.transform  = `scaleX(${b.dir}) scaleY(1)`;
       b.el.style.filter     = '';
       b.el.style.background = `url(${u.sit}) 0 0 / 100% 100%`;
       b.state = 'hop';
-    }, 1700);
+    }, 1750);
   };
 
   function tick(ts) {
