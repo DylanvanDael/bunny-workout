@@ -121,14 +121,60 @@ function urls() {
   return URLS;
 }
 
+// ─── Inject shared CSS once (bubble tail uses ::before/::after) ───
+function ensureStyles() {
+  if (document.getElementById('__bunny_ui_styles')) return;
+  const s = document.createElement('style');
+  s.id = '__bunny_ui_styles';
+  s.textContent = `
+    .bunny-bubble {
+      position: fixed;
+      background: #fff0f6;
+      color: #c2185b;
+      border: 2px solid #f48fb1;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 9999;
+      text-transform: lowercase;
+      transform-origin: bottom left;
+      transition: transform 300ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease;
+    }
+    .bunny-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -9px;
+      left: 14px;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 9px solid #f48fb1;
+    }
+    .bunny-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 16px;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid #fff0f6;
+      z-index: 1;
+    }
+  `;
+  document.head.appendChild(s);
+}
+
 // ─── Scene constants ───
 const SCENE_H  = 76;
 const GROUND_H = 18;
 const GRASS_Y  = SCENE_H - GROUND_H;
 const BW = 10 * PX;
 const BH = 12 * PX;
-const MIN_GAP = 8;
-const HI_DIST = 4;
+const MIN_GAP   = 8;
+const HI_DIST   = 4;
+const STUCK_MAX = 3500; // ms before a jammed bunny reverses
 
 const active = [];
 
@@ -221,84 +267,45 @@ function buildMole(scene, hx) {
   setTimeout(pop, 4000 + Math.random() * 9000);
 }
 
-// ─── High-five effects ───
+// ─── High-five effects (fixed to viewport, not inside scene) ───
 
-function spawnStar(scene, x) {
+function spawnStar(x) {
   const el = document.createElement('div');
   el.textContent = '⭐';
   el.style.cssText = [
-    'position:absolute',
+    'position:fixed',
     `left:${x - 10}px`,
     `bottom:${GROUND_H + BH + 4}px`,
-    'font-size:20px', 'z-index:12',
+    'font-size:20px',
+    'z-index:9998',
     'animation:starFloat 0.9s ease-out forwards',
     'pointer-events:none',
   ].join(';');
-  scene.appendChild(el);
+  document.body.appendChild(el);
   setTimeout(() => el.remove(), 950);
 }
 
-function spawnBubble(scene, x, text) {
-  // Clamp to viewport
+function spawnBubble(x, text) {
   const clampedX = Math.min(Math.max(x, 6), window.innerWidth - 130);
 
   const bubble = document.createElement('div');
-  bubble.style.cssText = [
-    'position:absolute',
-    `left:${clampedX}px`,
-    `bottom:${GROUND_H + BH + 18}px`,
-    'background:#fff0f6',
-    'color:#c2185b',
-    'border:2px solid #f48fb1',
-    'border-radius:10px',
-    'padding:5px 10px',
-    'font-size:11px',
-    'font-weight:700',
-    'font-family:inherit',
-    'white-space:nowrap',
-    'z-index:13',
-    'transform:scale(0) rotate(-6deg)',
-    'transform-origin:bottom left',
-    'transition:transform 280ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease',
-    'pointer-events:none',
-    'text-transform:lowercase',
-  ].join(';');
+  bubble.className = 'bunny-bubble';
   bubble.textContent = text;
+  bubble.style.left   = clampedX + 'px';
+  bubble.style.bottom = (GROUND_H + BH + 18) + 'px';
+  bubble.style.transform = 'scale(0) rotate(-6deg)';
+  bubble.style.opacity   = '1';
 
-  // Triangle tail pointing down-left
-  const tail = document.createElement('div');
-  tail.style.cssText = [
-    'position:absolute',
-    'bottom:-9px', 'left:14px',
-    'width:0', 'height:0',
-    'border-left:7px solid transparent',
-    'border-right:7px solid transparent',
-    'border-top:9px solid #f48fb1',
-  ].join(';');
+  document.body.appendChild(bubble);
 
-  const tailFill = document.createElement('div');
-  tailFill.style.cssText = [
-    'position:absolute',
-    'top:-11px', 'left:-5px',
-    'width:0', 'height:0',
-    'border-left:5px solid transparent',
-    'border-right:5px solid transparent',
-    'border-top:7px solid #fff0f6',
-  ].join(';');
-
-  tail.appendChild(tailFill);
-  bubble.appendChild(tail);
-  scene.appendChild(bubble);
-
-  // Pop in next frame so transition fires
-  requestAnimationFrame(() => {
+  // Double rAF guarantees the browser paints scale(0) before we transition to scale(1)
+  requestAnimationFrame(() => requestAnimationFrame(() => {
     bubble.style.transform = 'scale(1) rotate(0deg)';
-  });
+  }));
 
-  // Fade out then remove
   setTimeout(() => {
-    bubble.style.opacity = '0';
-    bubble.style.transform = 'scale(0.85) rotate(2deg)';
+    bubble.style.opacity   = '0';
+    bubble.style.transform = 'scale(0.88) rotate(3deg)';
   }, 2000);
   setTimeout(() => bubble.remove(), 2300);
 }
@@ -307,14 +314,20 @@ function spawnBubble(scene, x, text) {
 function spawnBunny(scene) {
   const u = urls();
 
+  // Balance directions: prefer whichever side has fewer active bunnies
+  const rightCount = active.filter(b => b.dir > 0).length;
+  const leftCount  = active.filter(b => b.dir < 0).length;
+  const dir = rightCount < leftCount ? 1 : leftCount < rightCount ? -1 : (Math.random() > 0.5 ? 1 : -1);
+
   const b = {
-    dir:      Math.random() > 0.5 ? 1 : -1,
+    dir,
     speed:    50 + Math.random() * 40,
     hopMs:    250 + Math.random() * 180,
     pos:      0,
     state:    'hop',
     frame:    0,
     lastT:    null,
+    stuckMs:  0,       // accumulated blocked time
     wrap:     null,
     el:       null,
     hopTimer: null,
@@ -371,19 +384,20 @@ function spawnBunny(scene) {
   b.doHighFive = () => {
     if (b.state === 'highfive') return;
     b.state = 'highfive';
+    b.stuckMs = 0;
     b.el.style.marginBottom = '0';
 
-    // t=0: sit still, gentle scale-up bounce
-    b.el.style.transform = `scaleX(${b.dir > 0 ? 1 : -1}) scaleY(1.12) scaleX(${b.dir > 0 ? 1.12 : -1.12})`;
-    b.el.style.filter     = 'brightness(1.25)';
+    // t=0: scale-up bounce
+    b.el.style.transform = `scaleX(${b.dir > 0 ? 1.15 : -1.15}) scaleY(1.15)`;
+    b.el.style.filter    = 'brightness(1.25)';
 
-    // t=180ms: raise paw (hifi frame)
+    // t=180ms: raise paw
     setTimeout(() => {
       b.el.style.background = `url(${u.hifi}) 0 0 / 100% 100%`;
       b.el.style.transform  = `scaleX(${b.dir > 0 ? 1 : -1}) scale(1.18)`;
     }, 180);
 
-    // t=1700ms: scale back, reverse, walk away
+    // t=1700ms: reverse direction and walk away
     setTimeout(() => {
       if (b.state !== 'highfive') return;
       b.dir = -b.dir;
@@ -401,17 +415,34 @@ function spawnBunny(scene) {
 
     if (b.state === 'hop') {
       let newPos = b.pos + b.dir * b.speed * dt;
+      let clamped = false;
 
-      // Same direction: maintain gap
+      // Same direction: maintain gap behind bunnies ahead of us
       for (const other of active) {
         if (other === b || other.dir !== b.dir) continue;
         if (b.dir > 0) {
-          if (other.pos > b.pos && newPos + BW + MIN_GAP > other.pos)
+          if (other.pos > b.pos && newPos + BW + MIN_GAP > other.pos) {
             newPos = other.pos - BW - MIN_GAP;
+            clamped = true;
+          }
         } else {
-          if (other.pos < b.pos && newPos - MIN_GAP < other.pos + BW)
+          if (other.pos < b.pos && newPos - MIN_GAP < other.pos + BW) {
             newPos = other.pos + BW + MIN_GAP;
+            clamped = true;
+          }
         }
+      }
+
+      // If jammed behind another bunny too long, reverse and spread out
+      if (clamped) {
+        b.stuckMs += dt * 1000;
+        if (b.stuckMs > STUCK_MAX) {
+          b.stuckMs = 0;
+          b.dir = -b.dir;
+          b.el.style.transform = `scaleX(${b.dir > 0 ? 1 : -1})`;
+        }
+      } else {
+        b.stuckMs = 0;
       }
 
       // Opposite direction: high-five on contact
@@ -424,18 +455,19 @@ function spawnBunny(scene) {
         const oL  = other.pos, oR = other.pos + BW;
 
         if (myR + HI_DIST >= oL && myL <= oR + HI_DIST) {
-          // Snap to touching position cleanly
+          // Snap cleanly to touching point
           b.pos = b.dir > 0 ? oL - BW : oR;
           b.wrap.style.left = b.pos + 'px';
 
           b.doHighFive();
           other.doHighFive();
 
-          // Shared effects with staged timing
+          // Shared visual effects — placed above the left-side bunny
+          const leftBunny = b.dir > 0 ? b : other;
           const midX = (b.pos + other.pos) / 2 + BW / 2;
-          const bubX  = Math.min(Math.max(b.dir > 0 ? b.pos : other.pos, 6), window.innerWidth - 130);
-          setTimeout(() => spawnBubble(scene, bubX, 'go snippie!'), 260);
-          setTimeout(() => spawnStar(scene, midX), 420);
+          const bubX = leftBunny.pos;
+          setTimeout(() => spawnBubble(bubX, 'go snippie!'), 260);
+          setTimeout(() => spawnStar(midX), 420);
 
           hiTriggered = true;
           break;
@@ -470,12 +502,14 @@ function spawnBunny(scene) {
 
 // ─── Init ───
 export function initBunnies() {
+  ensureStyles();
   urls();
 
   const scene = document.createElement('div');
+  // No overflow:hidden — the mole has its own clip wrapper
   scene.style.cssText = [
     'position:fixed', 'bottom:0', 'left:0', 'right:0',
-    `height:${SCENE_H}px`, 'pointer-events:none', 'z-index:50', 'overflow:hidden',
+    `height:${SCENE_H}px`, 'pointer-events:none', 'z-index:50',
   ].join(';');
   document.body.appendChild(scene);
 
