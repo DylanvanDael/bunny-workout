@@ -23,11 +23,14 @@ const MN = '#cc5555';
 // Butterfly
 const BW1 = '#ffaaee';
 const BW2 = '#dd44aa';
+const BW3 = '#ffee55';  // wing spot
 const BFB = '#553377';
 // Barbell
+const WPD = '#223366';  // plate dark shadow
 const WPL = '#334488';
 const WPH = '#5566bb';
-const WBR = '#ccccdd';
+const WBR = '#aabbcc';
+const WBH = '#ddeeff';  // bar chrome highlight
 
 // ─── Pixel art grids (10 × 12) ───
 
@@ -103,33 +106,52 @@ const BMOLE = [
   [_,MD,_,_,_,MD,_,_],
 ];
 
-// Butterfly sprite pixel size (smaller than bunnies)
-const BPX = 2;
+// Butterfly sprite pixel size
+const BPX = 3;
 
-// Butterfly frame 1 — wings up (6×5)
+// Butterfly frame 1 — wings spread up (7×6)
 const BFLY1 = [
-  [BW1, _,   _,   _,   _,   BW1],
-  [BW1, BW2, _,   _,   BW2, BW1],
-  [_,   BW2, BFB, BFB, BW2, _  ],
-  [_,   _,   BFB, BFB, _,   _  ],
-  [_,   _,   BFB, _,   _,   _  ],
+  [_,   BW1, BW2, _,   _,   BW2, BW1],
+  [BW1, BW1, BW2, BW2, BW2, BW1, BW1],
+  [BW1, BW1, BW2, BW3, BW3, BW2, BW1],  // yellow accent spots
+  [_,   BW1, BFB, BFB, BFB, BW1, _  ],
+  [_,   _,   BFB, BFB, BFB, _,   _  ],
+  [_,   _,   _,   BFB, _,   _,   _  ],
 ];
 
-// Butterfly frame 2 — wings down (6×5)
+// Butterfly frame 2 — wings angled down (7×6)
 const BFLY2 = [
-  [_,   _,   BFB, _,   _,   _  ],
-  [_,   _,   BFB, BFB, _,   _  ],
-  [_,   BW2, BFB, BFB, BW2, _  ],
-  [BW1, BW2, _,   _,   BW2, BW1],
-  [BW1, _,   _,   _,   _,   BW1],
+  [_,   _,   _,   BFB, _,   _,   _  ],
+  [_,   _,   BFB, BFB, BFB, _,   _  ],
+  [_,   BW1, BFB, BFB, BFB, BW1, _  ],
+  [BW1, BW1, BW2, BW3, BW3, BW2, BW1],  // yellow accent spots
+  [BW1, BW1, BW2, BW2, BW2, BW1, BW1],
+  [_,   BW1, BW2, _,   _,   BW2, BW1],
 ];
 
-// Barbell (13×4) — weights + chrome bar
+// Barbell (16×5) — thick plates with shadow + highlight, chrome bar
 const BBELL = [
-  [WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL],
-  [WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL],
-  [WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL],
-  [WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL],
+  [WPD, WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL, WPD],
+  [WPD, WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL, WPD],
+  [WPD, WPH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WBH, WPH, WPD],  // highlight
+  [WPD, WPL, WPH, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WBR, WPH, WPL, WPD],
+  [WPD, WPL, WPH, _,   _,   _,   _,   _,   _,   _,   _,   _,   _,   WPH, WPL, WPD],
+];
+
+// Gym bunny — squinting effort face during press (10×12)
+const BGYM_STRAIN = [
+  [_,W,_,_,_,_,_,_,W,_],
+  [_,W,_,_,_,_,_,_,W,_],
+  [_,W,_,_,_,_,_,_,W,_],
+  [_,EI,_,_,_,_,_,EI,_,_],
+  [_,W,W,W,W,W,W,W,_,_],
+  [W,W,W,W,W,W,W,W,W,_],
+  [W,MD,W,W,W,W,W,MD,W,_],  // squinting eyes
+  [W,W,W,NS,NS,W,W,W,W,_],
+  [W,W,W,W,W,W,W,W,W,W],
+  [W,W,W,W,W,W,W,W,W,_],
+  [_,W,W,_,_,_,W,W,_,_],
+  [_,W,W,_,_,_,W,W,_,_],
 ];
 
 // ─── Render pixel grid → data URL (px defaults to global PX) ───
@@ -149,11 +171,12 @@ function toDataURL(grid, px = PX) {
 let URLS = null;
 function urls() {
   if (!URLS) URLS = {
-    sit:  toDataURL(BSIT),
-    hop:  toDataURL(BHOP),
-    eat:  toDataURL(BEAT),
-    hifi: toDataURL(BHIFI),
-    mole: toDataURL(BMOLE),
+    sit:    toDataURL(BSIT),
+    hop:    toDataURL(BHOP),
+    eat:    toDataURL(BEAT),
+    hifi:   toDataURL(BHIFI),
+    mole:   toDataURL(BMOLE),
+    strain: toDataURL(BGYM_STRAIN),
   };
   return URLS;
 }
@@ -179,6 +202,14 @@ function ensureStyles() {
   const s = document.createElement('style');
   s.id = '__bunny_ui_styles';
   s.textContent = `
+    @keyframes barbellWobble {
+      0%   { transform: rotate(0deg); }
+      18%  { transform: rotate(-2.5deg); }
+      36%  { transform: rotate(2.5deg); }
+      54%  { transform: rotate(-1.5deg); }
+      72%  { transform: rotate(1deg); }
+      100% { transform: rotate(0deg); }
+    }
     .bunny-bubble {
       position: fixed;
       background: #fff0f6;
@@ -630,10 +661,10 @@ function spawnButterfly() {
 // ─── Gym bunny (occasional barbell overhead press) ───
 function spawnGymBunny(scene) {
   const u     = urls();
-  const bellW = BBELL[0].length * PX;   // 39px
-  const bellH = BBELL.length    * PX;   // 12px
+  const bellW = BBELL[0].length * PX;   // 48px (16 cols × 3)
+  const bellH = BBELL.length    * PX;   // 15px (5 rows × 3)
 
-  const x   = 60 + Math.floor(Math.random() * (window.innerWidth - 120));
+  const x   = 70 + Math.floor(Math.random() * (window.innerWidth - 140));
   const dir = Math.random() > 0.5 ? 1 : -1;
 
   const wrap = document.createElement('div');
@@ -644,10 +675,12 @@ function spawnGymBunny(scene) {
     'z-index:6',
   ].join(';');
 
-  // Barbell sits centred above the bunny
-  const bellLeft = Math.round((BW - bellW) / 2);
-  const shoulderY = BH - 2;
-  const overheadY = BH + 20;
+  // Barbell centred over bunny (extends beyond both sides like a real barbell)
+  const bellLeft  = Math.round((BW - bellW) / 2);
+  // Start position: bar just above bunny head (ears), ready to press
+  const rackY     = BH + 2;
+  // Overhead lockout: bar well above head
+  const lockoutY  = BH + bellH + 18;
 
   const bell = document.createElement('div');
   bell.style.cssText = [
@@ -655,11 +688,11 @@ function spawnGymBunny(scene) {
     `width:${bellW}px`,
     `height:${bellH}px`,
     `left:${bellLeft}px`,
-    `bottom:${shoulderY}px`,
+    `bottom:${rackY}px`,
     `background:url(${bellURL()}) 0 0 / 100% 100%`,
     'image-rendering:pixelated',
     'image-rendering:crisp-edges',
-    'transition:bottom 0.52s cubic-bezier(0.4,0,0.2,1)',
+    'transition:bottom 0.62s cubic-bezier(0.22,1,0.36,1)',
   ].join(';');
 
   const bunny = document.createElement('div');
@@ -670,7 +703,7 @@ function spawnGymBunny(scene) {
     'image-rendering:pixelated',
     `transform:scaleX(${dir})`,
     'transform-origin:center bottom',
-    'transition:transform 260ms cubic-bezier(0.34,1.45,0.64,1)',
+    'transition:transform 200ms ease, background 0ms',
   ].join(';');
 
   wrap.appendChild(bell);
@@ -683,27 +716,40 @@ function spawnGymBunny(scene) {
 
   function doRep() {
     isUp = !isUp;
-    bell.style.bottom = (isUp ? overheadY : shoulderY) + 'px';
 
-    // Tiny body-lean when pressing up
-    bunny.style.transform = isUp
-      ? `scaleX(${dir}) scaleY(0.94)`
-      : `scaleX(${dir}) scaleY(1)`;
-
-    if (!isUp) {
+    if (isUp) {
+      // Press up: slow ease-out (effort) — heavier easing going up
+      bell.style.transition = 'bottom 0.70s cubic-bezier(0.4,0,0.6,1)';
+      bell.style.bottom     = lockoutY + 'px';
+      // Squint + slight lean during strain
+      bunny.style.background = `url(${u.strain}) 0 0 / 100% 100%`;
+      bunny.style.transform  = `scaleX(${dir}) scaleY(0.92)`;
+      // Wobble at lockout after press completes
+      setTimeout(() => {
+        bell.style.animation = 'barbellWobble 0.45s ease';
+        setTimeout(() => { bell.style.animation = ''; }, 460);
+      }, 720);
+    } else {
+      // Lower down: fast ease-in then slow finish (controlled descent)
+      bell.style.transition = 'bottom 0.48s cubic-bezier(0,0,0.3,1)';
+      bell.style.bottom     = rackY + 'px';
+      bunny.style.background = `url(${u.sit}) 0 0 / 100% 100%`;
+      bunny.style.transform  = `scaleX(${dir}) scaleY(1)`;
       repsDone++;
       if (repsDone >= totalReps) {
         setTimeout(() => {
           wrap.remove();
           setTimeout(() => spawnGymBunny(scene), 18000 + Math.random() * 18000);
-        }, 1400);
+        }, 1200);
         return;
       }
     }
-    setTimeout(doRep, 580 + Math.random() * 180);
+    // Up stroke takes longer (effort), down stroke faster
+    setTimeout(doRep, isUp ? 900 + Math.random() * 200 : 600 + Math.random() * 150);
   }
 
-  setTimeout(doRep, 900);
+  // Brief pose before starting
+  setTimeout(doRep, 1000);
 }
 
 // ─── Init ───
