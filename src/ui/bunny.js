@@ -172,9 +172,9 @@ const GROUND_H = 18;
 const GRASS_Y  = SCENE_H - GROUND_H;
 const BW = 10 * PX;
 const BH = 12 * PX;
-const MIN_GAP   = 8;
-const HI_DIST   = 4;
-const STUCK_MAX = 3500; // ms before a jammed bunny reverses
+const MIN_GAP      = 8;
+const HI_DIST      = 4;
+const HIFI_COOLDOWN = 1800; // ms after a high-five where another can't trigger
 
 const active = [];
 
@@ -323,12 +323,12 @@ function spawnBunny(scene) {
     dir,
     speed:    50 + Math.random() * 40,
     hopMs:    250 + Math.random() * 180,
-    pos:      0,
-    state:    'hop',
-    frame:    0,
-    lastT:    null,
-    stuckMs:  0,       // accumulated blocked time
-    wrap:     null,
+    pos:         0,
+    state:       'hop',
+    frame:       0,
+    lastT:       null,
+    hifiCooldown: 0,   // ms remaining before next high-five allowed
+    wrap:        null,
     el:       null,
     hopTimer: null,
     eatTimer: null,
@@ -384,7 +384,6 @@ function spawnBunny(scene) {
   b.doHighFive = () => {
     if (b.state === 'highfive') return;
     b.state = 'highfive';
-    b.stuckMs = 0;
     b.el.style.marginBottom = '0';
 
     // t=0: scale-up bounce
@@ -397,10 +396,14 @@ function spawnBunny(scene) {
       b.el.style.transform  = `scaleX(${b.dir > 0 ? 1 : -1}) scale(1.18)`;
     }, 180);
 
-    // t=1700ms: reverse direction and walk away
+    // t=1700ms: reverse, push apart so they don't immediately re-collide, set cooldown
     setTimeout(() => {
       if (b.state !== 'highfive') return;
       b.dir = -b.dir;
+      // Move away from the meeting point before resuming so collision zone is clear
+      b.pos += b.dir * (BW + MIN_GAP + 4);
+      b.wrap.style.left  = b.pos + 'px';
+      b.hifiCooldown     = HIFI_COOLDOWN;
       b.el.style.transform  = `scaleX(${b.dir > 0 ? 1 : -1}) scale(1)`;
       b.el.style.filter     = '';
       b.el.style.background = `url(${u.sit}) 0 0 / 100% 100%`;
@@ -413,43 +416,32 @@ function spawnBunny(scene) {
     const dt = Math.min((ts - b.lastT) / 1000, 0.05);
     b.lastT = ts;
 
+    // Tick down cooldown every frame regardless of state
+    if (b.hifiCooldown > 0) b.hifiCooldown -= dt * 1000;
+
     if (b.state === 'hop') {
       let newPos = b.pos + b.dir * b.speed * dt;
-      let clamped = false;
 
-      // Same direction: maintain gap behind bunnies ahead of us
+      // Same direction: clamp behind any bunny ahead of us, prevent overlap
       for (const other of active) {
         if (other === b || other.dir !== b.dir) continue;
         if (b.dir > 0) {
-          if (other.pos > b.pos && newPos + BW + MIN_GAP > other.pos) {
+          if (other.pos > newPos && newPos + BW + MIN_GAP > other.pos) {
             newPos = other.pos - BW - MIN_GAP;
-            clamped = true;
           }
         } else {
-          if (other.pos < b.pos && newPos - MIN_GAP < other.pos + BW) {
+          if (other.pos < newPos && newPos - MIN_GAP < other.pos + BW) {
             newPos = other.pos + BW + MIN_GAP;
-            clamped = true;
           }
         }
       }
 
-      // If jammed behind another bunny too long, reverse and spread out
-      if (clamped) {
-        b.stuckMs += dt * 1000;
-        if (b.stuckMs > STUCK_MAX) {
-          b.stuckMs = 0;
-          b.dir = -b.dir;
-          b.el.style.transform = `scaleX(${b.dir > 0 ? 1 : -1})`;
-        }
-      } else {
-        b.stuckMs = 0;
-      }
-
-      // Opposite direction: high-five on contact
+      // Opposite direction: high-five on contact (skip if cooldown active)
       let hiTriggered = false;
       for (const other of active) {
         if (other === b || other.dir === b.dir) continue;
         if (b.state === 'highfive' || other.state === 'highfive') continue;
+        if (b.hifiCooldown > 0 || other.hifiCooldown > 0) continue;
 
         const myL = newPos, myR = newPos + BW;
         const oL  = other.pos, oR = other.pos + BW;
@@ -462,10 +454,9 @@ function spawnBunny(scene) {
           b.doHighFive();
           other.doHighFive();
 
-          // Shared visual effects — placed above the left-side bunny
-          const leftBunny = b.dir > 0 ? b : other;
+          // Shared visual effects — bubble above the left-side bunny
           const midX = (b.pos + other.pos) / 2 + BW / 2;
-          const bubX = leftBunny.pos;
+          const bubX = (b.dir > 0 ? b : other).pos;
           setTimeout(() => spawnBubble(bubX, 'go snippie!'), 260);
           setTimeout(() => spawnStar(midX), 420);
 
